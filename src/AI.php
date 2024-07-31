@@ -26,49 +26,54 @@ class AI
         $this->dbConnect();
         $schema = $this->dbInstance->getSchema();
 
-        // $question = "Can you generate only a single SQL SELECT query with relational joins if required
-        // without any description in the output just a raw SQL command from the statement below \n
-        // Get all user accounts \n
-        // Using the table schema below.\n
-        // $schema";
+        //$userQuestion = "Get all savings accounts with their balances";
+        $userQuestion = "Get all user account transactions with their details";
 
-        $question = "Can you generate only a single SQL SELECT query with relational joins if required
-        without any description in the output just a raw SQL command from the statement below \n
-        How any transactions have been generated for user accounts \n
-        Using the table schema below.\n
+        $question = "Can you generate a prompt to request for only a single MySQL SQL SELECT query with relational joins if required
+        for the question below. \n
+        $userQuestion based on the schema below
         $schema";
 
-        $promptResponse = (new Llama())->setApiUrl("http://localhost:11434/api/generate")
+        $promptResponse = $this->promptLLM($question);
+
+
+        if (isset($promptResponse['response'])) {
+            $promptResponse = $this->promptLLM($promptResponse['response']);
+            if (isset($promptResponse['response'])) {
+                $sql = (new StringParser())->extractSql($promptResponse['response']);
+
+                $results = $this->dbInstance->query($sql);
+
+                $this->dbInstance->disconnect();
+
+                $formattedResults = json_encode($results);
+            
+                $question = "Can you help me generate a detailed report based on the question $userQuestion, from this query response $formattedResults";
+
+                $promptResponse = $this->promptLLM($question);
+                
+                if (isset($promptResponse['response'])) {
+                    print_r(($promptResponse['response']));
+                } else {
+                    die('Error: Prompt Response ' . $promptResponse['error']);
+                }
+            } else {
+                die('Error: Prompt Response ' . $promptResponse['error']);
+            }
+        } else {
+            die('Error: Prompt Response ' . $promptResponse['error']);
+        }
+    }
+
+    private function promptLLM($question)
+    {
+        return (new Llama())->setApiUrl("http://localhost:11434/api/generate")
             ->setModel("llama3")
             ->setTemperature(0)
             ->setPrompt($question)
             ->setStream(false)
             ->setFormat("json")
             ->queryLLM();
-
-
-        if (isset($promptResponse['response'])) {
-            var_dump('Generated Response: ', $promptResponse['response']);
-            $sql = (new StringParser())->extractSql($promptResponse['response']);
-            $results = $this->dbInstance->query($sql);
-            $this->dbInstance->disconnect();
-            $formattedResults = json_encode($results);
-            
-            //$question = "Can you help me generate a report of the List of all accounts by account type (savings or checking) from this query response $formattedResults";
-            $question = "Can you help me generate a report of the List of all accounts by account type (savings or checking) with their balances and transactions from this query response $formattedResults";
-
-            $promptResponse = (new Llama())->setApiUrl("http://localhost:11434/api/generate")
-                ->setModel("llama3")
-                ->setTemperature(0)
-                ->setPrompt($question)
-                ->setStream(false)
-                ->setFormat("json")
-                ->queryLLM();
-            
-            if (isset($promptResponse['response'])) {
-                print_r(($promptResponse['response']));
-            }
-        }
     }
 
 }
