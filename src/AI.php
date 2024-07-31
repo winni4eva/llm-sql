@@ -26,13 +26,13 @@ class AI
         $this->dbConnect();
         $schema = $this->dbInstance->getSchema();
 
-        // $question = "Can you generate a only single SQL SELECT query with relational joins if required
+        // $question = "Can you generate only a single SQL SELECT query with relational joins if required
         // without any description in the output just a raw SQL command from the statement below \n
         // Get all user accounts \n
         // Using the table schema below.\n
         // $schema";
 
-        $question = "Can you generate a only single SQL SELECT query with relational joins if required
+        $question = "Can you generate only a single SQL SELECT query with relational joins if required
         without any description in the output just a raw SQL command from the statement below \n
         How any transactions have been generated for user accounts \n
         Using the table schema below.\n
