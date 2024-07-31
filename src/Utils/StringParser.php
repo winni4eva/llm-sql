@@ -2,9 +2,10 @@
 namespace Winnipass\AiSql\Utils;
 
 
-class String
+class StringParser
 {
-    public static function extractSql($string)
+    public function __construct() {}
+    public function extractSql($string)
     {
         $pattern = '/```sql(.*?)```/s';
         preg_match($pattern, $string, $matches);

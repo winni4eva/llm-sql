@@ -14,6 +14,8 @@ class MySQL
         $dsn = "mysql:host=$this->host;dbname=$this->dbName";
 
         $this->conn = new PDO($dsn, $this->username, $this->password);
+
+        return $this;
     }
 
     public function disconnect()
@@ -27,7 +29,7 @@ class MySQL
             if ($query) {
                 $stmt = $this->conn->query($query);
                 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                $this->disconnect();
+                //$this->disconnect();
     
                 return $result;
             }

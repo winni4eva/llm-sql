@@ -1,5 +1,5 @@
 <?php 
-namespace Winnipass\AiSql;
+namespace Winnipass\AiSql\Request;
 use Exception;
 
 class Request 

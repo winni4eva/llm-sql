@@ -105,17 +105,17 @@ function formatSchemaForPrompt($schema) {
 $formattedSchema = formatSchemaForPrompt($schema);
 
 // Example usage
-$question = "Can you generate a only single SQL SELECT query with relational joins if required
-without any description in the output just a raw SQL command from the statement below \n
-Get all user accounts \n
-Using the table schema below.\n
-$formattedSchema";
-
 // $question = "Can you generate a only single SQL SELECT query with relational joins if required
 // without any description in the output just a raw SQL command from the statement below \n
-// How any transactions are associated with user accounts \n
+// Get all user accounts \n
 // Using the table schema below.\n
 // $formattedSchema";
+
+$question = "Can you generate a only single SQL SELECT query with relational joins if required
+without any description in the output just a raw SQL command from the statement below \n
+How any transactions have been generated for user accounts \n
+Using the table schema below.\n
+$formattedSchema";
 
 $llmResponse = queryLocalLanguageModel($question);
 
@@ -131,7 +131,8 @@ if (isset($llmResponse['response'])) {
         $dbResults = json_encode(executeSqlQuery($sqlCommand, $conn));
 
         //var_dump($dbResults);
-        $question = "Can you help me generate a report of the List of all accounts by account type (savings or checking) from this query response $dbResults";
+        //$question = "Can you help me generate a report of the List of all accounts by account type (savings or checking) from this query response $dbResults";
+        $question = "Can you help me generate a report of the List of all accounts by account type (savings or checking) with their balances and transactions from this query response $dbResults";
         //var_dump('Generated RESULT: ',$question);
 
         $llmResponse = queryLocalLanguageModel($question);

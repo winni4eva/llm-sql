@@ -1,7 +1,7 @@
 <?php 
 namespace Winnipass\AiSql\LLM;
 use Exception;
-use Winnipass\AiSql\Request;
+use Winnipass\AiSql\Request\Request;
 class Llama
 {
     private $apiUrl = "http://localhost:11434/api/generate";
@@ -72,7 +72,7 @@ class Llama
         $data = json_encode(
             [
                 "model"=> $this->model,
-                "format"=> $this->format,
+                //"format"=> $this->format,
                 "stream"=> $this->stream,
                 "prompt"=> $this->prompt,
                 "options"=> [
