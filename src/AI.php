@@ -9,27 +9,15 @@ class AI
 
     private $dbInstance;
 
+    private $dbConnection; 
+
     public function __construct() {}
 
-    public function dbConnect() 
+    public function ask($userQuestion)
     {
-        $host = 'localhost';
-        $username = 'root';
-        $password = '12345678';
-        $dbName = 'mojo_finance';
-
-        $this->dbInstance = (new MySQL($host, $username, $password, $dbName))->connect();
-    }
-
-    public function ask()
-    {
-        $this->dbConnect();
         $schema = $this->dbInstance->getSchema();
 
-        //$userQuestion = "Get all savings accounts with their balances";
-        $userQuestion = "Get all user account transactions with their details";
-
-        $question = "Can you generate a prompt to request for only a single MySQL SQL SELECT query with relational joins if required
+        $question = "Can you generate a prompt to request for only a single $this->dbConnection SQL SELECT query with relational joins if required
         for the question below. \n
         $userQuestion based on the schema below
         $schema";
@@ -65,6 +53,18 @@ class AI
         }
     }
 
+    public function dbConnect() 
+    {
+        $host = $_ENV['DB_HOST'];
+        $username = $_ENV['DB_USERNAME'];
+        $password = $_ENV['DB_PASSWORD'];
+        $dbName = $_ENV['DB_DATABASE'];
+
+        $this->dbInstance = (new MySQL($host, $username, $password, $dbName))->connect();
+
+        return $this;
+    }
+
     private function promptLLM($question)
     {
         return (new Llama())->setApiUrl("http://localhost:11434/api/generate")
@@ -76,8 +76,21 @@ class AI
             ->queryLLM();
     }
 
+    public function setDbConnection($dbConnection)
+    {
+        $this->dbConnection = $dbConnection;
+
+        return $this;
+    }
+
 }
 
 require 'vendor/autoload.php';
+$dotenv = \Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
 
-(new AI())->ask();
+
+$userQuestion = "Get all account types, with their user details and balances";
+//$userQuestion = "Get all user account transactions";
+
+(new AI())->setDbConnection($_ENV['DB_CONNECTION'])->dbConnect()->ask($userQuestion);
