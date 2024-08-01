@@ -27,6 +27,7 @@ class AI
 
         if (isset($promptResponse['response'])) {
             $promptResponse = $this->promptLLM($promptResponse['response']);
+            
             if (isset($promptResponse['response'])) {
                 $sql = (new StringParser())->extractSql($promptResponse['response']);
 

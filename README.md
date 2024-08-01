@@ -10,3 +10,6 @@ php src/AI.php
 ### Requirements
 - PHP 8+
 - Mysql
+
+## Ollama Docs
+- https://github.com/ollama/ollama/blob/main/docs/api.md
