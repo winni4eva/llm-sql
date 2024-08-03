@@ -27,7 +27,7 @@ class AI
 
         if (isset($promptResponse['response'])) {
             $promptResponse = $this->promptLLM($promptResponse['response']);
-            
+
             if (isset($promptResponse['response'])) {
                 $sql = (new StringParser())->extractSql($promptResponse['response']);
 
@@ -42,7 +42,7 @@ class AI
                 $promptResponse = $this->promptLLM($question);
                 
                 if (isset($promptResponse['response'])) {
-                    print_r(($promptResponse['response']));
+                    print_r($promptResponse['response']);
                 } else {
                     die('Error: Prompt Response ' . $promptResponse['error']);
                 }
@@ -91,7 +91,9 @@ $dotenv = \Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
 
 
-$userQuestion = "Get all account types, with their user details and balances";
-//$userQuestion = "Get all user account transactions";
-
-(new AI())->setDbConnection($_ENV['DB_CONNECTION'])->dbConnect()->ask($userQuestion);
+if ($argc > 1) {
+    $userQuestion = $argv[1];
+    (new AI())->setDbConnection($_ENV['DB_CONNECTION'])->dbConnect()->ask($userQuestion);
+} else {
+    die('No question provided');
+}
