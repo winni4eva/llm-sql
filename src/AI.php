@@ -7,17 +7,18 @@ use Winnipass\AiSql\Utils\StringParser;
 class AI
 {
 
-    private $dbInstance;
-
-    private $dbConnection; 
+    private $dbInstance; 
 
     public function __construct() {}
 
     public function ask($userQuestion)
     {
-        $schema = $this->dbInstance->getSchema();
 
-        $question = "Can you generate a prompt to request for only a single $this->dbConnection SQL SELECT query with relational joins if required
+        $this->dbInstance = (new MySQL($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_DATABASE']))->connect();
+        $schema = $this->dbInstance->getSchema();
+        $dbConnection = $_ENV['DB_CONNECTION'];
+
+        $question = "Can you generate a prompt to request for only a single $dbConnection SQL SELECT query with relational joins if required
         for the question below. \n
         $userQuestion based on the schema below
         $schema";
@@ -54,18 +55,6 @@ class AI
         }
     }
 
-    public function dbConnect() 
-    {
-        $host = $_ENV['DB_HOST'];
-        $username = $_ENV['DB_USERNAME'];
-        $password = $_ENV['DB_PASSWORD'];
-        $dbName = $_ENV['DB_DATABASE'];
-
-        $this->dbInstance = (new MySQL($host, $username, $password, $dbName))->connect();
-
-        return $this;
-    }
-
     private function promptLLM($question)
     {
         return (new Llama())->setApiUrl("http://localhost:11434/api/generate")
@@ -77,13 +66,6 @@ class AI
             ->queryLLM();
     }
 
-    public function setDbConnection($dbConnection)
-    {
-        $this->dbConnection = $dbConnection;
-
-        return $this;
-    }
-
 }
 
 require 'vendor/autoload.php';
@@ -93,7 +75,7 @@ $dotenv->load();
 
 if ($argc > 1) {
     $userQuestion = $argv[1];
-    (new AI())->setDbConnection($_ENV['DB_CONNECTION'])->dbConnect()->ask($userQuestion);
+    (new AI())->ask($userQuestion);
 } else {
     die('No question provided');
 }
