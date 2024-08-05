@@ -1,7 +1,10 @@
 ### SQL LLM
 - Start llm service eg Ollama (https://ollama.com/) and set api url to match your environment 
 - Rename .env.example to .env and update the db credentials
-- Update questions in src/AI.php
+- Run command
+```
+composer install
+```
 - Run the command below in the project root with a question you want a report for to test
 ```
 php src/AI.php "Get all account types, with their user details and balances"
