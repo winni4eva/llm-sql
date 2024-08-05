@@ -5,7 +5,6 @@
 ```
 composer install
 ```
-- Update questions in src/AI.php
 - Run the command below in the project root with a question you want a report for to test
 ```
 php src/AI.php "Get all account types, with their user details and balances"
