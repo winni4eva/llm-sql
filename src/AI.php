@@ -14,45 +14,17 @@ class AI
     public function ask($userQuestion)
     {
 
-        $this->dbInstance = (new MySQL($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_DATABASE']))->connect();
-        $schema = $this->dbInstance->getSchema();
-        $dbConnection = $_ENV['DB_CONNECTION'];
-
-        $question = "Can you generate a prompt to request for only a single $dbConnection SQL SELECT query with relational joins if required
-        for the question below. \n
-        $userQuestion based on the schema below
-        $schema";
+        $this->dbConnect();
+        
+        $question = $this->generateInitialPrompt($userQuestion);
 
         $promptResponse = $this->promptLLM($question);
 
+        $promptResponse = $this->makeSqlQueryPrompt($promptResponse);
 
-        if (isset($promptResponse['response'])) {
-            $promptResponse = $this->promptLLM($promptResponse['response']);
+        $queryResults = $this->queryDbWithPromptResponse($promptResponse);
 
-            if (isset($promptResponse['response'])) {
-                $sql = (new StringParser())->extractSql($promptResponse['response']);
-
-                $results = $this->dbInstance->query($sql);
-
-                $this->dbInstance->disconnect();
-
-                $formattedResults = json_encode($results);
-            
-                $question = "Can you help me generate a detailed report based on the question $userQuestion, from this query response $formattedResults";
-
-                $promptResponse = $this->promptLLM($question);
-                
-                if (isset($promptResponse['response'])) {
-                    print_r($promptResponse['response']);
-                } else {
-                    die('Error: Prompt Response ' . $promptResponse['error']);
-                }
-            } else {
-                die('Error: Prompt Response ' . $promptResponse['error']);
-            }
-        } else {
-            die('Error: Prompt Response ' . $promptResponse['error']);
-        }
+        $this->generateReport($queryResults, $userQuestion);
     }
 
     private function promptLLM($question)
@@ -64,6 +36,57 @@ class AI
             ->setStream(false)
             ->setFormat("json")
             ->queryLLM();
+    }
+
+    private function dbConnect() {
+        $this->dbInstance = (new MySQL($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_DATABASE']))->connect();
+    }
+
+    private function generateInitialPrompt($userQuestion) {
+        $schema = $this->dbInstance->getSchema();
+        $dbConnection = $_ENV['DB_CONNECTION'];
+
+        $question = "Can you generate a prompt to request for only a single $dbConnection SQL SELECT query with relational joins if required
+        for the question below. \n
+        $userQuestion based on the schema below
+        $schema";
+
+        return $question;
+    }
+
+    private function makeSqlQueryPrompt($promptResponse) {
+        if (isset($promptResponse['response'])) {
+            return $this->promptLLM($promptResponse['response']);
+        } else {
+            die('Error: Prompt Response ' . $promptResponse['error']);
+        }
+    }
+
+    private function queryDbWithPromptResponse($promptResponse) {
+        if (isset($promptResponse['response'])) {
+            $sql = (new StringParser())->extractSql($promptResponse['response']);
+
+            $results = $this->dbInstance->query($sql);
+
+            $this->dbInstance->disconnect();
+
+            return json_encode($results);
+        
+        } else {
+            die('Error: Prompt Response ' . $promptResponse['error']);
+        }
+    }
+
+    private function generateReport($queryResults, $userQuestion) {
+        $question = "Can you help me generate a detailed report based on the question $userQuestion, from this query response $queryResults";
+
+        $promptResponse = $this->promptLLM($question);
+        
+        if (isset($promptResponse['response'])) {
+            print_r($promptResponse['response']);
+        } else {
+            die('Error: Prompt Response ' . $promptResponse['error']);
+        }
     }
 
 }
