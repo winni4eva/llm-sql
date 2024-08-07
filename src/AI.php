@@ -11,11 +11,10 @@ class AI
 
     public function __construct() {}
 
-    public function ask($userQuestion)
+    public function ask(string $userQuestion)
     {
-
         $this->dbConnect();
-        
+
         $question = $this->generateInitialPrompt($userQuestion);
 
         $promptResponse = $this->promptLLM($question);
@@ -27,7 +26,7 @@ class AI
         $this->generateReport($queryResults, $userQuestion);
     }
 
-    private function promptLLM($question)
+    private function promptLLM(string $question): array
     {
         return (new Llama())->setApiUrl("http://localhost:11434/api/generate")
             ->setModel("llama3")
@@ -38,11 +37,13 @@ class AI
             ->queryLLM();
     }
 
-    private function dbConnect() {
+    private function dbConnect(): void 
+    {
         $this->dbInstance = (new MySQL($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_DATABASE']))->connect();
     }
 
-    private function generateInitialPrompt($userQuestion) {
+    private function generateInitialPrompt(string $userQuestion): string 
+    {
         $schema = $this->dbInstance->getSchema();
         $dbConnection = $_ENV['DB_CONNECTION'];
 
@@ -54,7 +55,8 @@ class AI
         return $question;
     }
 
-    private function makeSqlQueryPrompt($promptResponse) {
+    private function makeSqlQueryPrompt(array $promptResponse): array 
+    {
         if (isset($promptResponse['response'])) {
             return $this->promptLLM($promptResponse['response']);
         } else {
@@ -62,7 +64,8 @@ class AI
         }
     }
 
-    private function queryDbWithPromptResponse($promptResponse) {
+    private function queryDbWithPromptResponse(array $promptResponse): string 
+    {
         if (isset($promptResponse['response'])) {
             $sql = (new StringParser())->extractSql($promptResponse['response']);
 
@@ -77,7 +80,8 @@ class AI
         }
     }
 
-    private function generateReport($queryResults, $userQuestion) {
+    private function generateReport(string $queryResults, string $userQuestion): void 
+    {
         $question = "Can you help me generate a detailed report based on the question $userQuestion, from this query response $queryResults";
 
         $promptResponse = $this->promptLLM($question);
