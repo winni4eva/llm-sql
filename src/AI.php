@@ -1,5 +1,6 @@
 <?php 
 namespace Winnipass\AiSql;
+
 use Winnipass\AiSql\Databases\MySQL;
 use Winnipass\AiSql\LLM\Llama;
 use Winnipass\AiSql\Utils\StringParser;
@@ -28,7 +29,7 @@ class AI
 
     private function promptLLM(string $question): array
     {
-        return (new Llama())->setApiUrl("http://localhost:11434/api/generate")
+        return (new Llama())->setApiUrl($_ENV['LLM_API_URL'] ?? "http://localhost:11434/api/generate")
             ->setModel("llama3")
             ->setTemperature(0)
             ->setPrompt($question)

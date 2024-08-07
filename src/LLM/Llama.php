@@ -1,5 +1,6 @@
 <?php 
 namespace Winnipass\AiSql\LLM;
+
 use Exception;
 use Winnipass\AiSql\Request\Request;
 class Llama
