@@ -1,6 +1,6 @@
 ### SQL LLM
-- Start llm service eg Ollama (https://ollama.com/) and set api url to match your environment 
-- Rename .env.example to .env and update the db credentials
+- Start llm service eg Ollama (https://ollama.com/)
+- Rename .env.example to .env and update the db credentials and llm service api url if different from the default
 - Run command
 ```
 composer install
