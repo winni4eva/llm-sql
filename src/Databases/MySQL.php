@@ -33,7 +33,7 @@ class MySQL
     
                 return $result;
             }
-            die("Error executing SQL query: $query");
+            return false;
         } catch (PDOException $e) {
             die('Connection failed: ' . $e->getMessage());
         }

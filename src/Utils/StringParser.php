@@ -12,10 +12,9 @@ class StringParser
 
         if (isset($matches[1])) {
             $sqlCommand = trim($matches[1]);
-            var_dump('Generated SQL: ',$sqlCommand);
             return $sqlCommand;
         }
 
-        return '';
+        return $string;
     }
 }

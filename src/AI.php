@@ -58,26 +58,30 @@ class AI
     private function makeSqlQueryPrompt(array $promptResponse): array 
     {
         if (isset($promptResponse['response'])) {
-            return $this->promptLLM($promptResponse['response']);
+            $response = $this->promptLLM($promptResponse['response']);
+            var_dump('SQL PROMPT RESPONSE: ', $response['response']);
+            return $response;
         } else {
             die('Error: Prompt Response ' . $promptResponse['error']);
         }
     }
 
-    private function queryDbWithPromptResponse(array $promptResponse): string 
+    private function queryDbWithPromptResponse(array $promptResponse): string | null
     {
         if (isset($promptResponse['response'])) {
             $sql = (new StringParser())->extractSql($promptResponse['response']);
-
+    
             $results = $this->dbInstance->query($sql);
-
             $this->dbInstance->disconnect();
 
-            return json_encode($results);
+            if ($results)
+                return json_encode($results);
+
+            die("Error generating query, kindly rephrase your question");
         
-        } else {
-            die('Error: Prompt Response ' . $promptResponse['error']);
         }
+        
+        die('Error: Prompt Response ' . $promptResponse['error']);
     }
 
     private function generateReport(string $queryResults, string $userQuestion): void 
