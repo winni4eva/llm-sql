@@ -46,8 +46,9 @@ class AI
     {
         $schema = $this->dbInstance->getSchema();
         $dbConnection = $_ENV['DB_CONNECTION'];
+        $dbConnectionVersion = $_ENV['DB_CONNECTION_VERSION'];
 
-        $question = "Can you generate a prompt to request for only a single $dbConnection SQL SELECT query with relational joins if required
+        $question = "Can you generate a prompt to request for only a single $dbConnection Version $dbConnectionVersion Compatible SQL SELECT query with relational joins if required
         for the question below. \n
         $userQuestion based on the schema below
         $schema";
