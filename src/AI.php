@@ -1,14 +1,18 @@
 <?php 
 namespace Winnipass\AiSql;
 
+require 'vendor/autoload.php';
 use Winnipass\AiSql\Databases\MySQL;
 use Winnipass\AiSql\LLM\Llama;
+use Winnipass\AiSql\BaseAI;
 
 class AI extends BaseAI
 { 
     private $llm;
+
     public function __construct() 
     {
+        parent::__construct();
         $this->llm = new Llama();
     }
 
@@ -30,7 +34,6 @@ class AI extends BaseAI
     }
 }
 
-require 'vendor/autoload.php';
 $dotenv = \Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
 

@@ -1,5 +1,6 @@
 <?php 
 namespace Winnipass\AiSql;
+
 use Winnipass\AiSql\Databases\DBInterface;
 use Winnipass\AiSql\LLM\LLMInterface;
 use Winnipass\AiSql\Utils\StringParser;
@@ -7,13 +8,17 @@ use Winnipass\AiSql\Utils\StringParser;
 
 abstract class BaseAI
 {
-    private $dbInstance;
-    public function __construct() {}
+    protected $dbInstance;
 
-    private function promptLLM(LLMInterface $llm, string $question): array
+    public function __construct(protected $model = null)
+    {
+        $this->model = $model ?? $_ENV['LLM_MODEL'];
+    }
+
+    protected function promptLLM(LLMInterface $llm, string $question): array
     {
         return $llm->setApiUrl($_ENV['LLM_API_URL'] ?? "http://localhost:11434/api/generate")
-            ->setModel("llama3")
+            ->setModel($this->model)
             ->setTemperature(0)
             ->setPrompt($question)
             ->setStream(false)
@@ -21,12 +26,12 @@ abstract class BaseAI
             ->queryLLM();
     }
 
-    private function dbConnect(DBInterface $db): void 
+    protected function dbConnect(DBInterface $db): void 
     {
         $this->dbInstance = $db->connect();
     }
 
-    private function generateInitialPrompt(string $userQuestion): string 
+    protected function generateInitialPrompt(string $userQuestion): string 
     {
         $schema = $this->dbInstance->getSchema();
         $dbConnection = $_ENV['DB_CONNECTION'];
@@ -41,18 +46,18 @@ abstract class BaseAI
         return $question;
     }
 
-    private function makeSqlQueryPrompt(LLMInterface $llm, array $promptResponse): array 
+    protected function makeSqlQueryPrompt(LLMInterface $llm, array $promptResponse): array 
     {
         if (isset($promptResponse['response'])) {
             $response = $this->promptLLM($llm, $promptResponse['response']);
             var_dump('SQL PROMPT RESPONSE: ', $response['response']);
             return $response;
         } else {
-            die('Error: Prompt Response ' . $promptResponse['error']);
+            die('Error: Prompt Response Make SQL ' . $promptResponse['error']);
         }
     }
 
-    private function queryDbWithPromptResponse(array $promptResponse): string | null
+    protected function queryDbWithPromptResponse(array $promptResponse): string | null
     {
         if (isset($promptResponse['response'])) {
             $sql = (new StringParser())->extractSql($promptResponse['response']);
@@ -67,10 +72,10 @@ abstract class BaseAI
         
         }
         
-        die('Error: Prompt Response ' . $promptResponse['error']);
+        die('Error: Prompt Response Query DB' . $promptResponse['error']);
     }
 
-    private function generateReport(string $queryResults, string $userQuestion): void 
+    protected function generateReport(string $queryResults, string $userQuestion): void 
     {
         $question = "Can you help me generate a detailed report based on the question $userQuestion, from this query response $queryResults";
 
@@ -79,7 +84,7 @@ abstract class BaseAI
         if (isset($promptResponse['response'])) {
             print_r($promptResponse['response']);
         } else {
-            die('Error: Prompt Response ' . $promptResponse['error']);
+            die('Error: Prompt Response Generate Report' . $promptResponse['error']);
         }
     }
 }
