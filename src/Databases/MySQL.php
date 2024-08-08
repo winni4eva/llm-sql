@@ -4,7 +4,7 @@ namespace Winnipass\AiSql\Databases;
 use PDO;
 use PDOException;
 
-class MySQL
+class MySQL implements DBInterface
 {
     protected $conn;
     public function __construct(protected $host, protected $username, protected $password, protected $dbName) {}
@@ -35,7 +35,8 @@ class MySQL
             }
             return false;
         } catch (PDOException $e) {
-            die('Connection failed: ' . $e->getMessage());
+            //throw new \Exception("Error Running Query: " . $e->getMessage());
+            var_dump("Error Running Query: " . $e->getMessage());
         }
     }
 

@@ -3,7 +3,7 @@ namespace Winnipass\AiSql\LLM;
 
 use Exception;
 use Winnipass\AiSql\Request\Request;
-class Llama
+class Llama implements LLMInterface
 {
     private $apiUrl = "http://localhost:11434/api/generate";
     private $model = "llama3"; //sqlcoder gpt-4
