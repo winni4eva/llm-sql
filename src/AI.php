@@ -4,11 +4,10 @@ namespace Winnipass\AiSql;
 require 'vendor/autoload.php';
 use Winnipass\AiSql\Databases\MySQL;
 use Winnipass\AiSql\LLM\Llama;
-use Winnipass\AiSql\BaseAI;
 
 class AI extends BaseAI
 { 
-    private $llm;
+    protected $llm;
 
     public function __construct() 
     {
