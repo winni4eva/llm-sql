@@ -7,8 +7,6 @@ use Winnipass\AiSql\LLM\Llama;
 
 class AI extends BaseAI
 { 
-    protected $llm;
-
     public function __construct() 
     {
         parent::__construct();
@@ -21,15 +19,12 @@ class AI extends BaseAI
             (new MySQL($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_DATABASE']))
         );
 
-        $question = $this->generateInitialPrompt($userQuestion);
-
-        $promptResponse = $this->promptLLM($this->llm, $question);
-
-        $promptResponse = $this->makeSqlQueryPrompt($this->llm, $promptResponse);
-
-        $queryResults = $this->queryDbWithPromptResponse($promptResponse);
-
-        $this->generateReport($queryResults, $userQuestion);
+        $this->setUserQuestion($userQuestion)
+            ->generateInitialPrompt()
+            ->promptLLM()
+            ->makeSqlQueryPrompt()
+            ->queryDbWithPromptResponse()
+            ->generateReport();
     }
 }
 
