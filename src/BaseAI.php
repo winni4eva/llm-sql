@@ -49,7 +49,7 @@ abstract class BaseAI
         $this->prompt = "Can you generate a prompt to request for only a single $dbConnection Version $dbConnectionVersion 
         Compatible SQL SELECT query with relational joins if required
         for the question below. \n
-        $this->userQuestion based on only the TABLES and relationships in the schema below
+        $this->userQuestion based on only the TABLES, COLUMNS and relationships in the schema below
         $schema";
 
         return $this;
@@ -71,8 +71,24 @@ abstract class BaseAI
     {
         if (isset($this->promptResponse['response'])) {
             $sql = (new StringParser())->extractSql($this->promptResponse['response']);
-    
-            $results = $this->dbInstance->query($sql);
+            
+            try {
+                $results = $this->dbInstance->query($sql);
+            } catch (\Throwable $th) {
+                var_dump("\n Error with the sugested query : \n" . $th->getMessage() . "\n Retrying with new prompt");
+                $response = $this->promptResponse['response'];
+
+                $this->prompt = "This error was returned : " . $th->getMessage() . "  \n
+                While running the query below : \n
+                $sql \n
+                Can you help rewrite to fix the errors and do not repeat the same query above again without applying the new fix.";
+
+                var_dump(" \n New prompt". $this->prompt);
+
+                $this->promptLLM();
+                $this->queryDbWithPromptResponse();
+            }
+            
             $this->dbInstance->disconnect();
 
             if ($results) {

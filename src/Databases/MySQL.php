@@ -35,8 +35,7 @@ class MySQL implements DBInterface
             }
             return false;
         } catch (PDOException $e) {
-            //throw new \Exception("Error Running Query: " . $e->getMessage());
-            var_dump("Error Running Query: " . $e->getMessage());
+            throw new \Exception("Error Running Query: " . $e->getMessage());
         }
     }
 
