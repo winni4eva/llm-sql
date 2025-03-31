@@ -32,7 +32,7 @@ class Request
 
         $response = curl_exec($ch);
         curl_close($ch);    
-
+        var_dump('Response : ', $response);
         return json_decode($response, true);
     }
 }

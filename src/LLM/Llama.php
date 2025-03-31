@@ -6,7 +6,7 @@ use Winnipass\AiSql\Request\Request;
 class Llama implements LLMInterface
 {
     private $apiUrl = "http://localhost:11434/api/generate";
-    private $model = "llama3"; //sqlcoder gpt-4
+    private $model = "deepseek-r1"; //sqlcoder gpt-4
     private $temperature = 0;
     private $prompt;
     private $response;
@@ -19,6 +19,8 @@ class Llama implements LLMInterface
     public function setApiUrl($apiUrl)
     {
         $this->apiUrl = $apiUrl;
+
+        var_dump('API URL: ', $this->apiUrl);
 
         return $this;
     }
