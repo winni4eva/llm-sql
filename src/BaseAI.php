@@ -4,6 +4,7 @@ namespace Winnipass\AiSql;
 use Winnipass\AiSql\Databases\DBInterface;
 use Winnipass\AiSql\LLM\LLMInterface;
 use Winnipass\AiSql\Utils\StringParser;
+use Winnipass\AiSql\Documents\PDF;
 
 
 abstract class BaseAI
@@ -106,11 +107,14 @@ abstract class BaseAI
 
     protected function generateReport(): void 
     {
-        $this->prompt = "Can you help me generate a detailed report based on the question $this->userQuestion, from this query response $this->queryResults";
+        $this->prompt = "Can you help me generate a detailed report based on the question $this->userQuestion, from this query response $this->queryResults in a business friendly html format with appropriate styling and meta tags.";
 
         $this->promptLLM();
         
         print_r($this->promptResponse['response']);
+
+        $pdf = new PDF($this->promptResponse['response'], "report.pdf");
+        $pdf->generate();
     }
 
     public function setUserQuestion(string $userQuestion): self
